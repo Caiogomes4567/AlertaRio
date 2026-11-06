@@ -1,22 +1,22 @@
-const form = document.getElementById("alertForm");
+﻿const form = document.getElementById("alertForm");
 const message = document.getElementById("formMessage");
 
 if (form && message) {
   form.addEventListener("submit", (event) => {
     event.preventDefault();
     message.className = "error";
-    message.textContent = "O cadastro de alertas por e-mail está temporariamente indisponível.";
+    message.textContent = "O cadastro de alertas por e-mail estÃ¡ temporariamente indisponÃ­vel.";
   });
 }
 
 /* ===== Monitor AlertaRio: leitura do PC via Cloudflare Tunnel ===== */
-const DATA_API = "https://webster-demonstrated-things-apps.trycloudflare.com/api/stations";
+const DATA_API = "https://handheld-campus-technologies-going.trycloudflare.com/api/stations";
 const POLL_MS = 5000;
 const STATUS_LABEL = {
   normal: "Normal",
-  attention: "Atenção",
+  attention: "AtenÃ§Ã£o",
   alert: "Alerta",
-  critical: "Crítico",
+  critical: "CrÃ­tico",
   offline: "Offline"
 };
 
@@ -74,18 +74,18 @@ function applyStation(s) {
 
   const updated = s.created_at || s.updated_at;
   if (offline || !levelValid) {
-    val.textContent = "— —";
-    val.setAttribute("aria-label", "Sem leitura disponível");
-    info.textContent = stationId + " · " + (s.local || "Estação") + " · " +
+    val.textContent = "â€” â€”";
+    val.setAttribute("aria-label", "Sem leitura disponÃ­vel");
+    info.textContent = stationId + " Â· " + (s.local || "EstaÃ§Ã£o") + " Â· " +
       (updated ? "sem comunicar desde " + hhmm(updated) : "sem leitura recebida");
   } else {
     val.textContent = level.toFixed(1).replace(".", ",") + " cm";
     val.removeAttribute("aria-label");
-    info.textContent = stationId + " · " + (s.local || "Leitura do sensor") +
-      " · distância: " + (Number.isFinite(Number(s.distance_cm)) ? Number(s.distance_cm).toFixed(1).replace(".", ",") + " cm" : "—");
+    info.textContent = stationId + " Â· " + (s.local || "Leitura do sensor") +
+      " Â· distÃ¢ncia: " + (Number.isFinite(Number(s.distance_cm)) ? Number(s.distance_cm).toFixed(1).replace(".", ",") + " cm" : "â€”");
   }
-  el.setAttribute("aria-label", "Estação " + stationId + ". Nível atual: " +
-    (offline || !levelValid ? "sem leitura" : level.toFixed(1) + " centímetros") + ". Status: " + label + ".");
+  el.setAttribute("aria-label", "EstaÃ§Ã£o " + stationId + ". NÃ­vel atual: " +
+    (offline || !levelValid ? "sem leitura" : level.toFixed(1) + " centÃ­metros") + ". Status: " + label + ".");
 }
 
 function applyHero(s) {
@@ -97,13 +97,13 @@ function applyHero(s) {
   const updated = s.created_at || s.updated_at;
 
   document.getElementById("heroName").textContent = "Canal do Pinheirinho";
-  document.getElementById("heroMeta").textContent = "Estação AR-01" +
-    (updated ? " · leitura de " + hhmm(updated) : " · aguardando leitura");
+  document.getElementById("heroMeta").textContent = "EstaÃ§Ã£o AR-01" +
+    (updated ? " Â· leitura de " + hhmm(updated) : " Â· aguardando leitura");
   const st = document.getElementById("heroStatus");
   st.className = "status " + status;
   st.textContent = STATUS_LABEL[status] || "Offline";
-  document.getElementById("heroLevel").textContent = offline || !valid ? "—" : level.toFixed(1).replace(".", ",");
-  document.getElementById("heroTrend").textContent = offline ? "sem comunicação" : (s.trend || "sem tendência calculada");
+  document.getElementById("heroLevel").textContent = offline || !valid ? "â€”" : level.toFixed(1).replace(".", ",");
+  document.getElementById("heroTrend").textContent = offline ? "sem comunicaÃ§Ã£o" : (s.trend || "sem tendÃªncia calculada");
 }
 
 async function loadStations() {
@@ -119,15 +119,15 @@ async function loadStations() {
     }
     if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
-    if (!Array.isArray(data.stations)) throw new Error("Resposta sem estações");
+    if (!Array.isArray(data.stations)) throw new Error("Resposta sem estaÃ§Ãµes");
     data.stations.forEach(applyStation);
     const mainStation = data.stations.find((x) => (x.station_id || x.id) === "AR-01");
     applyHero(mainStation);
     notice.className = "data-notice live";
-    notice.textContent = "Dados ao vivo · atualizado às " + hhmm(new Date().toISOString());
+    notice.textContent = "Dados ao vivo Â· atualizado Ã s " + hhmm(new Date().toISOString());
   } catch (err) {
     notice.className = "data-notice";
-    notice.textContent = "Sem conexão com a estação. Aguardando nova tentativa automática.";
+    notice.textContent = "Sem conexÃ£o com a estaÃ§Ã£o. Aguardando nova tentativa automÃ¡tica.";
   }
 }
 
@@ -220,13 +220,13 @@ grayscale.addEventListener("click", () => {
 readText.addEventListener("click", () => {
 
     if (!("speechSynthesis" in window)) {
-        alert("Seu navegador não oferece suporte à leitura de voz.");
+        alert("Seu navegador nÃ£o oferece suporte Ã  leitura de voz.");
         return;
     }
 
     if (window.speechSynthesis.speaking) {
         window.speechSynthesis.cancel();
-        readText.innerHTML = "<span>🔊</span> Ler conteúdo da página";
+        readText.innerHTML = "<span>ðŸ”Š</span> Ler conteÃºdo da pÃ¡gina";
         return;
     }
 
@@ -247,7 +247,7 @@ readText.addEventListener("click", () => {
     const pageText = selectedText || clone.innerText.trim();
 
     if (!pageText) {
-        alert("Não encontrei texto para leitura.");
+        alert("NÃ£o encontrei texto para leitura.");
         return;
     }
 
@@ -258,14 +258,14 @@ readText.addEventListener("click", () => {
     speech.pitch = 1;
 
     speech.onend = () => {
-        readText.innerHTML = "<span>🔊</span> Ler conteúdo da página";
+        readText.innerHTML = "<span>ðŸ”Š</span> Ler conteÃºdo da pÃ¡gina";
     };
 
     speech.onerror = () => {
-        readText.innerHTML = "<span>🔊</span> Ler conteúdo da página";
+        readText.innerHTML = "<span>ðŸ”Š</span> Ler conteÃºdo da pÃ¡gina";
     };
 
-    readText.innerHTML = "<span>⏹</span> Parar leitura";
+    readText.innerHTML = "<span>â¹</span> Parar leitura";
 
     window.speechSynthesis.speak(speech);
 });
@@ -292,6 +292,7 @@ reset.addEventListener("click", () => {
 
     window.speechSynthesis?.cancel();
 
-    readText.innerHTML = "<span>🔊</span> Ler conteúdo da página";
+    readText.innerHTML = "<span>ðŸ”Š</span> Ler conteÃºdo da pÃ¡gina";
 });
+
 
