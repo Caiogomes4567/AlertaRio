@@ -1,93 +1,133 @@
 const form = document.getElementById("alertForm");
 const message = document.getElementById("formMessage");
 
-form.addEventListener("submit", async (event) => {
-  event.preventDefault();
-  message.className = "";
-  message.textContent = "Enviando...";
-  try {
-    const res = await fetch("/api/subscribe", {
-      method: "POST",
-      headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ email: form.email.value })
-    });
-    if (!res.ok) throw new Error(String(res.status));
-    message.textContent = "E-mail cadastrado! Você entrou na lista de alertas.";
-    form.reset();
-  } catch (err) {
+if (form && message) {
+  form.addEventListener("submit", (event) => {
+    event.preventDefault();
     message.className = "error";
-    message.textContent = "Não foi possível cadastrar agora. Verifique o e-mail e tente novamente.";
-  }
-});
+    message.textContent = "O cadastro de alertas por e-mail está temporariamente indisponível.";
+  });
+}
 
-/* ===== Dados reais das estações (API /api/stations) ===== */
-const STATUS_LABEL = { normal: "Normal", attention: "Atenção", critical: "Crítico", offline: "Offline" };
-const POLL_MS = 15000;
+/* ===== Monitor AlertaRio: leitura do PC via Cloudflare Tunnel ===== */
+const DATA_API = "https://webster-demonstrated-things-apps.trycloudflare.com/api/stations";
+const POLL_MS = 5000;
+const STATUS_LABEL = {
+  normal: "Normal",
+  attention: "Atenção",
+  alert: "Alerta",
+  critical: "Crítico",
+  offline: "Offline"
+};
 
-function hhmm(iso) {
-  return new Date(iso).toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+function hhmm(value) {
+  if (!value) return "--:--";
+  const date = new Date(String(value).replace(" ", "T"));
+  if (Number.isNaN(date.getTime())) return "--:--";
+  return date.toLocaleTimeString("pt-BR", { hour: "2-digit", minute: "2-digit" });
+}
+
+function normalizeStatus(s) {
+  if (s.online === false || Number(s.sensor_ok) === 0) return "offline";
+  const raw = String(s.alert || s.status || "normal").toLowerCase()
+    .normalize("NFD").replace(/[\u0300-\u036f]/g, "");
+  if (["critical", "critico", "perigo", "danger"].includes(raw)) return "critical";
+  if (["alert", "alerta", "attention", "atencao", "warning"].includes(raw)) return "attention";
+  if (["offline", "sensor_falha", "sensor_failure"].includes(raw)) return "offline";
+  return "normal";
 }
 
 function applyStation(s) {
-  const el = document.querySelector('.station[data-station="' + s.id + '"]');
+  const stationId = s.station_id || s.id;
+  const el = document.querySelector('.station[data-station="' + stationId + '"]');
   if (!el) return;
-  const offline = s.status === "offline";
-  const label = STATUS_LABEL[s.status] || "Offline";
 
-  const barCls = { attention: " warning", critical: " critical", offline: " offline" }[s.status] || "";
+  const status = normalizeStatus(s);
+  const offline = status === "offline";
+  const label = STATUS_LABEL[status] || "Offline";
+  const level = Number(s.level_cm ?? s.water_depth_cm);
+  const levelValid = Number.isFinite(level);
   const bar = el.querySelector(".bar");
-  bar.className = "bar" + barCls;
-  const pct = offline || s.level_cm === null ? 0 : Math.max(0, Math.min(100, (s.level_cm / s.critico) * 100));
-  bar.querySelector("i").style.width = pct.toFixed(0) + "%";
-  bar.querySelector("em").style.right = (100 - (s.atencao / s.critico) * 100).toFixed(0) + "%";
-
+  const info = el.querySelector(".station-info span");
+  const val = el.querySelector(":scope > strong");
   const pill = el.querySelector(".pill");
-  pill.className = "pill " + s.status;
+
+  bar.className = "bar" + ({
+    attention: " warning",
+    critical: " critical",
+    offline: " offline"
+  }[status] || "");
+
+  const stationConfig = {
+    "AR-01": { atencao: 180, critico: 240 },
+    "AR-02": { atencao: 150, critico: 200 },
+    "AR-03": { atencao: 90, critico: 120 },
+    "AR-04": { atencao: 120, critico: 160 }
+  }[stationId] || { atencao: 180, critico: 240 };
+
+  const pct = offline || !levelValid ? 0 : Math.max(0, Math.min(100, (level / stationConfig.critico) * 100));
+  bar.querySelector("i").style.width = pct.toFixed(0) + "%";
+  bar.querySelector("em").style.right = (100 - (stationConfig.atencao / stationConfig.critico) * 100).toFixed(0) + "%";
+
+  pill.className = "pill " + status;
   pill.textContent = label;
 
-  const val = el.querySelector(":scope > strong");
-  const info = el.querySelector(".station-info span");
-  if (offline) {
+  const updated = s.created_at || s.updated_at;
+  if (offline || !levelValid) {
     val.textContent = "— —";
     val.setAttribute("aria-label", "Sem leitura disponível");
-    info.textContent = s.id + " · " + s.local + " · " +
-      (s.updated_at ? "sem comunicar desde " + hhmm(s.updated_at) : "sem leitura recebida");
-    el.setAttribute("aria-label", "Estação " + s.id + ", " + s.nome + ". Sem leitura disponível. Status: offline.");
+    info.textContent = stationId + " · " + (s.local || "Estação") + " · " +
+      (updated ? "sem comunicar desde " + hhmm(updated) : "sem leitura recebida");
   } else {
-    val.textContent = Math.round(s.level_cm) + " cm";
+    val.textContent = level.toFixed(1).replace(".", ",") + " cm";
     val.removeAttribute("aria-label");
-    info.textContent = s.id + " · " + s.local + " · atenção em " + s.atencao + " cm";
-    el.setAttribute("aria-label", "Estação " + s.id + ", " + s.nome + ". Nível atual: " + Math.round(s.level_cm) +
-      " centímetros. Atenção a partir de " + s.atencao + " centímetros. Status: " + label.toLowerCase() + ".");
+    info.textContent = stationId + " · " + (s.local || "Leitura do sensor") +
+      " · distância: " + (Number.isFinite(Number(s.distance_cm)) ? Number(s.distance_cm).toFixed(1).replace(".", ",") + " cm" : "—");
   }
+  el.setAttribute("aria-label", "Estação " + stationId + ". Nível atual: " +
+    (offline || !levelValid ? "sem leitura" : level.toFixed(1) + " centímetros") + ". Status: " + label + ".");
 }
 
 function applyHero(s) {
   if (!s) return;
-  const offline = s.status === "offline";
-  document.getElementById("heroName").textContent = s.nome;
-  document.getElementById("heroMeta").textContent = "Estação " + s.id +
-    (s.updated_at ? " · leitura de " + hhmm(s.updated_at) : " · sem leitura");
+  const status = normalizeStatus(s);
+  const offline = status === "offline";
+  const level = Number(s.level_cm ?? s.water_depth_cm);
+  const valid = Number.isFinite(level);
+  const updated = s.created_at || s.updated_at;
+
+  document.getElementById("heroName").textContent = "Canal do Pinheirinho";
+  document.getElementById("heroMeta").textContent = "Estação AR-01" +
+    (updated ? " · leitura de " + hhmm(updated) : " · aguardando leitura");
   const st = document.getElementById("heroStatus");
-  st.className = "status " + s.status;
-  st.textContent = STATUS_LABEL[s.status] || "Offline";
-  document.getElementById("heroLevel").textContent = offline ? "—" : Math.round(s.level_cm);
-  document.getElementById("heroTrend").textContent = offline ? "sem comunicação" : (s.trend || "");
+  st.className = "status " + status;
+  st.textContent = STATUS_LABEL[status] || "Offline";
+  document.getElementById("heroLevel").textContent = offline || !valid ? "—" : level.toFixed(1).replace(".", ",");
+  document.getElementById("heroTrend").textContent = offline ? "sem comunicação" : (s.trend || "sem tendência calculada");
 }
 
 async function loadStations() {
   const notice = document.getElementById("dataNotice");
   try {
-    const res = await fetch("/api/stations", { cache: "no-store" });
-    if (!res.ok) throw new Error(String(res.status));
+    const controller = new AbortController();
+    const timeout = setTimeout(() => controller.abort(), 8000);
+    let res;
+    try {
+      res = await fetch(DATA_API, { cache: "no-store", signal: controller.signal });
+    } finally {
+      clearTimeout(timeout);
+    }
+    if (!res.ok) throw new Error("HTTP " + res.status);
     const data = await res.json();
+    if (!Array.isArray(data.stations)) throw new Error("Resposta sem estações");
     data.stations.forEach(applyStation);
-    applyHero(data.stations.find((x) => x.id === "AR-01"));
+    const mainStation = data.stations.find((x) => (x.station_id || x.id) === "AR-01");
+    applyHero(mainStation);
     notice.className = "data-notice live";
-    notice.textContent = "Dados ao vivo · atualizado às " + hhmm(data.generated_at);
+    notice.textContent = "Dados ao vivo · atualizado às " + hhmm(new Date().toISOString());
   } catch (err) {
     notice.className = "data-notice";
-    notice.textContent = "Dados ao vivo indisponíveis. Exibindo valores de demonstração.";
+    notice.textContent = "Sem conexão com a estação. Aguardando nova tentativa automática.";
   }
 }
 
