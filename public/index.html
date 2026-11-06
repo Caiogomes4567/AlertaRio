@@ -1,0 +1,395 @@
+<!DOCTYPE html>
+<html lang="pt-BR">
+
+<head>
+  <meta charset="UTF-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  <meta name="description" content="Monitoramento do nível da água com informações e alertas para a comunidade.">
+  <meta name="theme-color" content="#0b1724">
+  <title>AlertaRio — A água avisa antes de subir</title>
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Abel&family=Poppins:wght@400;500;600;700;800&display=swap"
+    rel="stylesheet">
+  <link rel="stylesheet" href="style.css">
+
+  <style>
+    .sr-only {
+      position: absolute !important;
+      width: 1px !important;
+      height: 1px !important;
+      padding: 0 !important;
+      margin: -1px !important;
+      overflow: hidden !important;
+      clip: rect(0, 0, 0, 0) !important;
+      white-space: nowrap !important;
+      border: 0 !important;
+    }
+
+    .skip-link {
+      position: fixed;
+      top: 12px;
+      left: 12px;
+      z-index: 100000;
+      padding: 12px 18px;
+      background: #fff;
+      color: #111;
+      border: 3px solid #1769aa;
+      border-radius: 8px;
+      font-weight: 700;
+      transform: translateY(-160%);
+    }
+
+    .skip-link:focus {
+      transform: translateY(0);
+    }
+
+    :focus-visible {
+      outline: 3px solid #ff9800;
+      outline-offset: 4px;
+    }
+
+    @media (prefers-reduced-motion: reduce) {
+      *,
+      *::before,
+      *::after {
+        scroll-behavior: auto !important;
+        animation-duration: 0.01ms !important;
+        animation-iteration-count: 1 !important;
+        transition-duration: 0.01ms !important;
+      }
+    }
+  </style>
+</head>
+
+<body>
+  <a class="skip-link" href="#conteudo-principal">Pular para o conteúdo principal</a>
+
+  <header class="navbar">
+    <a class="brand" href="#inicio" aria-label="AlertaRio — página inicial">
+      <span class="brand-mark" aria-hidden="true">◉</span>
+      <span>Alerta<span>Rio</span></span>
+    </a>
+
+    <nav aria-label="Menu principal">
+      <a href="#pontos">Pontos monitorados</a>
+      <a href="#como-funciona">Como funciona</a>
+      <a href="#dispositivo">O dispositivo</a>
+      <a href="#alertas">Receber alertas</a>
+    </nav>
+
+    <a class="nav-cta" href="#alertas">Receber alertas</a>
+  </header>
+
+  <main id="conteudo-principal">
+    <section class="hero" id="inicio" aria-labelledby="titulo-principal">
+      <div class="hero-copy">
+        <div class="eyebrow"><i aria-hidden="true"></i> Leituras atualizadas a cada 5 minutos</div>
+        <h1 id="titulo-principal">A água avisa antes<br>de subir. Alguém<br>precisa estar<br>ouvindo.</h1>
+        <p>
+          Sensores instalados em rios, lagos e bueiros medem o
+          nível da água em tempo real e disparam o alerta
+          enquanto ainda há tempo de tirar o carro da garagem,
+          subir os móveis e sair de casa.
+        </p>
+
+        <div class="hero-buttons">
+          <a href="#alertas" class="btn primary">Receber alertas do meu bairro</a>
+          <a href="#pontos" class="btn secondary">Ver nível agora</a>
+        </div>
+
+        <div class="hero-stats" aria-label="Resumo do projeto">
+          <div><strong>4 pontos</strong><span>monitorados em<br>fase piloto</span></div>
+          <div><strong>~40 min</strong><span>antecedência<br>média do alerta</span></div>
+          <div><strong>R$ 114</strong><span>custo mínimo por<br>ponto instalado</span></div>
+        </div>
+      </div>
+
+      <div class="monitor-card" id="heroCard" aria-label="Resumo da estação AR-01">
+        <div class="card-head">
+          <div>
+            <b id="heroName">Canal do Pinheirinho</b>
+            <small id="heroMeta">Estação AR-01 · leitura de 14:35</small>
+          </div>
+          <span class="status normal" id="heroStatus">Normal</span>
+        </div>
+
+        <div class="chart" role="img"
+          aria-label="Gráfico do nível da água no Canal do Pinheirinho. Leitura atual de 112 centímetros. As linhas de referência indicam atenção em 180 centímetros e nível crítico em 240 centímetros.">
+          <span class="sensor-dot" aria-hidden="true"></span>
+          <span class="sensor-name" aria-hidden="true">sensor HC-SR04</span>
+          <div class="line critical" aria-hidden="true"><label>crítico</label></div>
+          <div class="line attention" aria-hidden="true"><label>atenção</label></div>
+          <svg viewBox="0 0 500 170" preserveAspectRatio="none" aria-hidden="true" focusable="false">
+            <path class="water-back"
+              d="M0 105 C55 89 90 112 145 104 S240 90 295 106 S390 112 440 101 S480 93 500 101 L500 170 L0 170Z" />
+            <path class="water"
+              d="M0 115 C55 99 90 121 145 113 S240 99 295 115 S390 121 440 110 S480 102 500 110 L500 170 L0 170Z" />
+          </svg>
+          <div class="y-label y1" aria-hidden="true">240 cm</div>
+          <div class="y-label y2" aria-hidden="true">180 cm</div>
+          <div class="y-label y3" aria-hidden="true">120 cm</div>
+        </div>
+
+        <div class="card-bottom">
+          <strong><span id="heroLevel">112</span> <small>cm</small></strong>
+          <span id="heroTrend">estável nas últimas 3 h</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="pontos" class="levels section-light" aria-labelledby="titulo-pontos">
+      <div class="container">
+        <div class="section-title">
+          <h2 id="titulo-pontos">Nível da água agora</h2>
+          <p>Cada estação envia a leitura por Wi-Fi ou rede celular. Quando o nível<br class="desktop"> cruza a faixa de
+            atenção, a Defesa Civil e os moradores cadastrados<br class="desktop"> recebem o aviso no mesmo minuto.</p>
+        </div>
+
+        <div class="station-list" aria-label="Leituras das estações de monitoramento">
+          <article class="station" data-station="AR-01" aria-label="Estação AR-01, Canal do Pinheirinho. Nível atual: 112 centímetros. Atenção a partir de 180 centímetros. Status: normal.">
+            <div class="station-info">
+              <b>Canal do Pinheirinho</b>
+              <span>AR-01 · Vila Nova · atenção em 180 cm</span>
+            </div>
+            <div class="bar" aria-hidden="true"><i style="width:48%"></i><em></em></div>
+            <strong>112 cm</strong>
+            <span class="pill normal">Normal</span>
+          </article>
+
+          <article class="station" data-station="AR-02" aria-label="Estação AR-02, Córrego da Rua 12. Nível atual: 158 centímetros. Atenção a partir de 150 centímetros. Status: atenção.">
+            <div class="station-info">
+              <b>Córrego da Rua 12</b>
+              <span>AR-02 · Jardim Aurora · atenção em 150 cm</span>
+            </div>
+            <div class="bar warning" aria-hidden="true"><i style="width:72%"></i><em></em></div>
+            <strong>158 cm</strong>
+            <span class="pill attention">Atenção</span>
+          </article>
+
+          <article class="station" data-station="AR-03" aria-label="Estação AR-03, Bueiro da Praça Central. Nível atual: 31 centímetros. Atenção a partir de 90 centímetros. Status: normal.">
+            <div class="station-info">
+              <b>Bueiro da Praça Central</b>
+              <span>AR-03 · Centro · atenção em 90 cm</span>
+            </div>
+            <div class="bar" aria-hidden="true"><i style="width:25%"></i><em></em></div>
+            <strong>31 cm</strong>
+            <span class="pill normal">Normal</span>
+          </article>
+
+          <article class="station" data-station="AR-04" aria-label="Estação AR-04, Lago do Parque Sul. Sem leitura disponível. A estação não se comunica desde 09:10. Status: offline.">
+            <div class="station-info">
+              <b>Lago do Parque Sul</b>
+              <span>AR-04 · Parque Sul · sem comunicar desde 09:10</span>
+            </div>
+            <div class="bar offline" aria-hidden="true"><i style="width:0"></i><em></em></div>
+            <strong aria-label="Sem leitura disponível">— —</strong>
+            <span class="pill offline">Offline</span>
+          </article>
+        </div>
+
+        <p id="dataNotice" class="data-notice" role="status" aria-live="polite">Exibindo valores de demonstração.</p>
+
+        <div class="legend" aria-label="Legenda dos estados das estações">
+          <span><i class="dot normal" aria-hidden="true"></i> Normal — nível abaixo da faixa de atenção</span>
+          <span><i class="dot attention" aria-hidden="true"></i> Atenção — alerta enviado, água subindo</span>
+          <span><i class="dot critical" aria-hidden="true"></i> Crítico — risco de transbordo iminente</span>
+          <span><i class="dot offline" aria-hidden="true"></i> Offline — estação sem enviar leitura</span>
+        </div>
+      </div>
+    </section>
+
+    <section id="como-funciona" class="process" aria-labelledby="titulo-processo">
+      <div class="container">
+        <h2 id="titulo-processo">Da chuva ao celular, em<br>quatro etapas</h2>
+        <p class="subtitle">O mesmo caminho que a água percorre, o dado percorre antes dela.</p>
+
+        <div class="steps">
+          <article>
+            <span aria-hidden="true">1</span>
+            <h3>O sensor mede</h3>
+            <p>Um sensor ultrassônico mira a superfície da água e calcula a distância até ela — sem nunca tocar no rio,
+              o que dobra a vida útil do equipamento.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">2</span>
+            <h3>O dispositivo decide</h3>
+            <p>A placa compara a leitura com os limites daquele ponto. Não é a mesma coisa: 90 cm num bueiro é grave,
+              num canal é rotina.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">3</span>
+            <h3>O alerta sai</h3>
+            <p>Passando da faixa de atenção, o aviso vai por Wi-Fi ou SMS para a Defesa Civil, e a sirene e o LED do
+              poste avisam quem está na rua.</p>
+          </article>
+          <article>
+            <span aria-hidden="true">4</span>
+            <h3>A vizinhança age</h3>
+            <p>Quem está cadastrado recebe a notificação com o nível, a tendência e o tempo estimado até o transbordo.</p>
+          </article>
+        </div>
+      </div>
+    </section>
+
+    <section id="dispositivo" class="device-section" aria-labelledby="titulo-dispositivo">
+      <div class="device-illustration" role="img"
+        aria-label="Ilustração de um posto de monitoramento com painel solar de 6 volts, caixa de proteção IP65 com placa ESP32, buzzer, LED e sensor ultrassônico.">
+        <div class="solar" aria-hidden="true"></div>
+        <div class="device-box" aria-hidden="true">
+          <div class="screen">112 cm</div>
+          <div class="leds"><i></i><i></i><i></i></div>
+        </div>
+        <div class="post" aria-hidden="true"></div>
+        <div class="sensor" aria-hidden="true"></div>
+        <div class="waves" aria-hidden="true">⌁<br>⌁</div>
+        <span class="label solar-label" aria-hidden="true">painel solar 6 V</span>
+        <span class="label box-label" aria-hidden="true">caixa IP65 + ESP32</span>
+        <span class="label led-label" aria-hidden="true">buzzer e LED</span>
+        <span class="label sensor-label" aria-hidden="true">sensor ultrassônico</span>
+      </div>
+
+      <div class="device-copy">
+        <h2 id="titulo-dispositivo">Um posto de monitoramento<br>cabe em R$ 114</h2>
+        <p>O dispositivo funciona com energia solar e não depende de tomada nem de obra. Cada unidade usa componentes de
+          prateleira, o que permite instalar muitos pontos em vez de um só caro.</p>
+
+        <div class="parts" aria-label="Componentes e custos estimados">
+          <div><i class="blue" aria-hidden="true"></i><b>ESP32 DevKit v1</b><span>Cérebro da estação, com Wi-Fi e Bluetooth já
+              embutidos</span><strong>R$ 25–45</strong></div>
+          <div><i class="teal" aria-hidden="true"></i><b>Sensor ultrassônico HC-SR04</b><span>Mede o nível sem contato com a
+              água</span><strong>R$ 10–15</strong></div>
+          <div><i class="orange" aria-hidden="true"></i><b>Buzzer e LED de alta luminosidade</b><span>Avisam quem está na rua e não usa o
+              aplicativo</span><strong>R$ 3–8</strong></div>
+        </div>
+      </div>
+    </section>
+
+    <section id="alertas" class="alert-section" aria-labelledby="titulo-alertas">
+      <div>
+        <span class="eyebrow">Fique sabendo antes</span>
+        <h2 id="titulo-alertas">Receba um alerta quando<br>a água começar a subir.</h2>
+        <p>Cadastre seu bairro e receba notificações quando uma estação próxima entrar em atenção ou risco.</p>
+
+        <form id="alertForm">
+          <label class="sr-only" for="email-alertas">Seu endereço de e-mail</label>
+          <input type="email" id="email-alertas" name="email" placeholder="Seu melhor e-mail"
+            autocomplete="email" inputmode="email" required>
+          <button type="submit">Quero receber alertas</button>
+        </form>
+        <small id="formMessage" role="status" aria-live="polite" aria-atomic="true"></small>
+      </div>
+    </section>
+  </main>
+
+  <footer class="footer">
+    <div class="footer-top">
+      <div class="footer-brand">
+        <a class="brand" href="#inicio" aria-label="AlertaRio — voltar ao início">
+          <span class="brand-mark" aria-hidden="true">◉</span>
+          <span>Alerta<span>Rio</span></span>
+        </a>
+        <p>Monitoramento simples, acessível e em tempo real para ajudar comunidades a agir antes da água subir.</p>
+      </div>
+
+      <nav aria-label="Links do AlertaRio">
+        <h2>AlertaRio</h2>
+        <a href="#pontos">Pontos monitorados</a>
+        <a href="#como-funciona">Como funciona</a>
+        <a href="#dispositivo">O dispositivo</a>
+      </nav>
+
+      <nav aria-label="Participar do projeto">
+        <h2>Participar</h2>
+        <a href="#alertas">Receber alertas</a>
+        <a href="#pontos">Ver níveis</a>
+      </nav>
+
+      <div>
+        <h2>Projeto</h2>
+        <p>Uma proposta de tecnologia de baixo custo para monitoramento comunitário de enchentes.</p>
+      </div>
+    </div>
+    <div class="footer-bottom">
+      <span>© 2026 AlertaRio. Todos os direitos reservados.</span>
+      <span>Feito para informar antes que seja tarde.</span>
+    </div>
+  </footer>
+
+  <div class="accessibility-widget">
+    <button class="accessibility-toggle" id="accessibilityToggle"
+      aria-label="Abrir menu de acessibilidade" aria-expanded="false"
+      aria-controls="accessibilityMenu" type="button">
+      <svg viewBox="0 0 24 24" aria-hidden="true" focusable="false">
+        <circle cx="12" cy="4" r="2" fill="currentColor" />
+        <path d="M4 8h16M12 8v5m0 0-4 8m4-8 4 8M8 10l4 3 4-3" fill="none"
+          stroke="currentColor" stroke-width="2" stroke-linecap="round" stroke-linejoin="round" />
+      </svg>
+    </button>
+
+    <div class="accessibility-menu" id="accessibilityMenu" role="region"
+      aria-labelledby="accessibilityTitle" hidden>
+      <div class="accessibility-header">
+        <div>
+          <strong id="accessibilityTitle">Acessibilidade</strong>
+          <small>Personalize sua experiência</small>
+        </div>
+        <button type="button" id="accessibilityClose" class="accessibility-close"
+          aria-label="Fechar menu de acessibilidade">×</button>
+      </div>
+
+      <div class="accessibility-options">
+        <button type="button" id="increaseText">
+          <span aria-hidden="true">A+</span>
+          Aumentar texto
+        </button>
+        <button type="button" id="decreaseText">
+          <span aria-hidden="true">A-</span>
+          Diminuir texto
+        </button>
+        <button type="button" id="highContrast">
+          <span aria-hidden="true">◐</span>
+          Alto contraste
+        </button>
+        <button type="button" id="grayscale">
+          <span aria-hidden="true">◑</span>
+          Escala de cinza
+        </button>
+        <button type="button" id="readText">
+          <span aria-hidden="true">🔊</span>
+          Ler conteúdo da página
+        </button>
+        <button type="button" id="keyboardFocus">
+          <span aria-hidden="true">⌨</span>
+          Destacar navegação
+        </button>
+      </div>
+
+      <button type="button" id="resetAccessibility" class="accessibility-reset">
+        ↻ Restaurar configurações
+      </button>
+    </div>
+  </div>
+
+  <div vw class="enabled" aria-label="Tradução para Libras">
+    <div vw-access-button class="active" aria-label="Abrir tradução em Libras"></div>
+    <div vw-plugin-wrapper>
+      <div class="vw-plugin-top-wrapper"></div>
+    </div>
+  </div>
+
+  <script src="https://vlibras.gov.br/app/vlibras-plugin.js"></script>
+  <script>
+    new window.VLibras.Widget({
+      rootPath: 'https://vlibras.gov.br/app',
+      position: 'L',
+      avatar: 'icaro'
+    });
+  </script>
+
+  <!-- Carregar o script do site apenas uma vez -->
+  <script src="script.js"></script>
+</body>
+
+</html>

@@ -1,0 +1,7 @@
+node_modules
+.env
+.env.local
+.vercel
+pc-bridge/.env
+pc-bridge/.venv
+pc-bridge/__pycache__

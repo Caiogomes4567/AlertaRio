@@ -1,0 +1,8 @@
+{
+  "name": "alertario",
+  "version": "1.0.0",
+  "private": true,
+  "description": "AlertaRio - monitoramento de nível de água (site + API)",
+  "engines": { "node": ">=18" },
+  "scripts": { "test": "node tests/api.test.js" }
+}
