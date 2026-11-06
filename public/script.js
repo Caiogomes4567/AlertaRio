@@ -10,7 +10,7 @@ if (form && message) {
 }
 
 /* ===== Monitor AlertaRio: leitura do PC via Cloudflare Tunnel ===== */
-const DATA_API = "https://handheld-campus-technologies-going.trycloudflare.com/api/stations";
+const DATA_API = "https://controls-females-land-wagon.trycloudflare.com/api/stations";
 const POLL_MS = 5000;
 const STATUS_LABEL = {
   normal: "Normal",
